@@ -21,7 +21,7 @@ module Logrithm
     end
 
     def self.scramble(str)
-      str.gsub(/[:#@]/, ':' => '：', '#' => '＃', '@' => '＠')
+      str.gsub(/[:#@?!]/, ':' => '：', '#' => '＃', '@' => '＠', '?' => '？', '!' => '！')
     end
   end
 end
