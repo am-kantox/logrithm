@@ -112,8 +112,8 @@ module Logrithm
         to_esc(as_esc)
       end
 
-      def colorize(str)
-        "#{to_esc(true)}#{str}#{CLEAR_TERM}"
+      def colorize(*str, concatenator: '')
+        "#{to_esc(true)}#{str.map(&:to_s).join(concatenator)}#{CLEAR_TERM}"
       end
 
       # rubocop:disable Metrics/ParameterLists
@@ -281,6 +281,10 @@ module Logrithm
       # Some constants for general use
       WHITE = Color.new(255, 255, 255).freeze
       BLACK = Color.new(0, 0, 0).freeze
+      RED   = Color.new(255, 0, 0).freeze
+      GREEN = Color.new(0, 255, 0).freeze
+      BLUE  = Color.new(0, 0, 255).freeze
+      NONE  = Color.new(0, 0, 0, 255).freeze
     end
     # rubocop:enable Metrics/ClassLength
   end
