@@ -2,6 +2,11 @@ module Logrithm
   module Utils
     module Helpers
       class << self
+        def constantize(string, namespace = Kernel)
+          namespace = Kernel.const_get(namespace) unless namespace.is_a?(Module)
+          namespace.const_get string.to_s.gsub(/(?:\A|_)(\w)/) { |m| m[-1].upcase }
+        end
+
         def dirty_lookup_class_method(file, lineno)
           content = File.readlines(file)[0..lineno.to_i].reverse
           result = content.each_with_object(method: nil, ns: []) do |line, memo|
