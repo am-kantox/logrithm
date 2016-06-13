@@ -1,0 +1,1 @@
+require 'logrithm/spitters/exception'

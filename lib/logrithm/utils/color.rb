@@ -85,7 +85,19 @@ module Logrithm
           case val = args.first
           when Color then val
           when Fixnum then Color.new(val, val, val) # Single value, assume grayscale
-          when String
+          when /\A(\d{,3};){1,3}\d{,3}\z/ # console
+            # FIXME: implememnt this
+            # 16 + 36 * r + 6 * g + b
+            case cl = val.split(';').last.to_i
+            when 0..15 then '#000000' # FIXME: make it working
+            when 232..255
+              Color.new(*([cl - 232] * 3).map { |c| c * 10 + 16 })
+            else # FIXME: the line below fails for 231, it becomes 255
+              r, gb = (cl - 16).divmod(36)
+              g, b = gb.divmod(6)
+              Color.new(*[r, g, b].map { |e| (51.0 * e).floor })
+            end
+          when String # assume rgb and try to guess
             str = val.to_s.upcase[/[0-9A-F]{3,8}/] || ''
             Color.new(*case str.length
                        when 3, 4 then str.scan(/[0-9A-F]/).map { |d| d * 2 }
@@ -120,7 +132,7 @@ module Logrithm
       # Color as used in 256-color terminal escape sequences
       def to_esc(surround = true, bold: true, italic: false, underline: false, reverse: false, foreground: true)
         result = if grayscale?
-                   (r > 239) ? 15 : (r / 10).floor + 232
+                   r < 16 ? 0 : ((r - 16) / 10).floor + 232
                  else
                    16 + 36 * (r / 51).floor + 6 * (g / 51).floor + (b / 51).floor
                  end

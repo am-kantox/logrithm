@@ -27,14 +27,44 @@ module Logrithm
       end
       kungfuig(params)
       ensure_logger(log) if log
+
+      @leader = {}
+      @colors = {}
     end
 
     def logger
       ensure_logger
     end
 
+    def flush
+      logdev.flush
+    end
+
+    def level=(level = nil)
+      logger.level = level || case Logrithm.env
+                              when :dev, :development, :test then Logger::DEBUG
+                              else Logger::INFO
+                              end
+    end
+
     INSTANCE = Log.new
     private_class_method :new
+
+    %i(debug info warn error fatal).each do |m|
+      define_method(m) do |*args, **extended|
+        logger.public_send m, [Logrithm.severity(__callee__), *args, **extended]
+      end
+    end
+
+    class << self
+      def option(*name)
+        INSTANCE.option(*name)
+      end
+
+      def app_root
+        File.realpath(INSTANCE.option(:log, :root) || Logrithm.rails? && Rails.root || File.join(__dir__, '..', '..'))
+      end
+    end
 
     private
 
@@ -45,6 +75,10 @@ module Logrithm
       rescue NameError
         Formatters::Default
       end.formatter
+    end
+
+    def logdev
+      logger.instance_variable_get(:@logdev).instance_variable_get(:@dev)
     end
 
     def ensure_logger(log = nil)
@@ -58,19 +92,54 @@ module Logrithm
                       .instance_variable_get(:@logger)
                       .instance_variable_get(:@log)
               else
-                Logger.new($stdout)
+                Logger.new($stderr)
               end
 
       @tty = @log.respond_to?(:tty?) && @log.tty? ||
-             (l = @log.instance_variable_get(:@logdev)
-                      .instance_variable_get(:@dev)) && l.tty? ||
+             (l = logdev) && l.tty? ||
              Logrithm.rails? && Logrithm.env == :development
 
       # rubocop:disable Style/ParallelAssignment)
-      @formatter, @log_formatter = @log.formatter, formatter
+      @formatter, @log.formatter = @log.formatter, formatter
       # rubocop:enable Style/ParallelAssignment)
 
+      self.level = nil
+
       @log
+    end
+
+    def leader(severity)
+      @leader[severity] ||= case Logrithm.severity(severity)
+                            when 0 then option(:log, :symbols, :debug) || '✓'
+                            when 1 then option(:log, :symbols, :info)  || '✔'
+                            when 2 then option(:log, :symbols, :warn)  || '✗'
+                            when 3 then option(:log, :symbols, :error) || '✘'
+                            when 4 then option(:log, :symbols, :fatal) || '∅'
+                            else option(:log, :symbols, :debug) || '•'
+                            end
+    end
+
+    def color(severity)
+      @colors[severity] ||= case Logrithm.severity(severity)
+                            when 0 then [option(:log, :colors, :debug, :label) || '#747474', option(:log, :colors, :debug, :text) || '#9C9C9C']
+                            when 1 then [option(:log, :colors, :info, :label)  || '#FF0000', option(:log, :colors, :info, :text)  || '#6699CC']
+                            when 2 then [option(:log, :colors, :warn, :label)  || '#FFFF00', option(:log, :colors, :warn, :text)  || '#FFCC66']
+                            when 3 then [option(:log, :colors, :error, :label) || '#AA0000', option(:log, :colors, :error, :text) || '#CC6666']
+                            when 4 then [option(:log, :colors, :fatal, :label) || '#FF0000', option(:log, :colors, :fatal, :text) || '#FF0000']
+                            else [option(:log, :colors, :debug, :label) || '#747474', option(:log, :colors, :debug, :text) || '#9C9C9C']
+                            end.map { |c| Utils::Color.new c }
+    end
+
+    def lead(severity, datetime = safe_now)
+      " " <<
+        color(severity).first.colorize(leader(severity)) <<
+        " #{Utils::Output::VB} " <<
+        color(:debug).first.colorize(datetime.strftime('%Y%m%d-%H%M%S.%3N')) <<
+        " #{Utils::Output::VB} "
+    end
+
+    def safe_now
+      Time.respond_to?(:zone) ? Time.zone.now : Time.now
     end
   end
 end

@@ -25,7 +25,7 @@ log:
     highlight: '01;38;05;51'
     exception: '01;38;05;88'
     application: '01;38;05;253'
-    method: '01;38;05;253'
+    method_call: '01;38;05;253'
 
   symbols:
     info: '✔'

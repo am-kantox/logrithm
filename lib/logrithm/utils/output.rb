@@ -14,6 +14,13 @@ module Logrithm
       TERM_MARGIN_STR = ' ' * TERM_MARGIN
       BOX_MARGIN_STR  = ' ' * BOX_MARGIN
 
+      HIGHLIGHT_COLOR = Color.new(Logrithm::Log.option(:log, :colors, :highlight) || '01;38;05;51')
+      EXCEPTION_COLOR = Color.new(Logrithm::Log.option(:log, :colors, :exception) || '01;38;05;88')
+      APPDIR_COLOR = Color.new(Logrithm::Log.option(:log, :colors, :root) || '01;38;05;253')
+      METHOD_COLOR = Color.new(Logrithm::Log.option(:log, :colors, :method_call) || '01;38;05;253')
+      DATETIME_COLOR = Color.new(Logrithm::Log.option(:log, :colors, :datetime) || '01;38;05;240')
+      EXTENDED_COLOR = Color.new(Logrithm::Log.option(:log, :colors, :extended) || '01;38;05;246')
+
       class << self
         def line(filler = HB, width: $stdin.winsize.last, margin: TERM_MARGIN, color: Color::RED)
           color.colorize(' ' * margin, filler * (width - 2 * margin))
@@ -46,6 +53,17 @@ module Logrithm
           ].join($/)
         end
         # rubocop:enable Metrics/AbcSize
+
+        def clrz(txt, clr)
+          txt = txt.to_s
+                   .gsub(/«(.*?)»/m, "#{HIGHLIGHT_COLOR.to_esc}\\1#{clr.to_esc}")
+                   .gsub(/⟨(.*?)⟩/m, "#{EXCEPTION_COLOR.to_esc}\\1#{clr.to_esc}")
+                   .gsub(/⟦(.*?)⟧/m, "#{APPDIR_COLOR.to_esc}\\1#{clr.to_esc}")
+                   .gsub(/⟬(.*?)⟭/m, "#{METHOD_COLOR.to_esc}\\1#{clr.to_esc}")
+                   .gsub(/⟪(.*?)⟫/m, "#{EXTENDED_COLOR.to_esc}\\1#{clr.to_esc}")
+
+          clr.colorize txt
+        end
       end
     end
   end
