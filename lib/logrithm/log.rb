@@ -7,6 +7,7 @@ module Logrithm
     include Kungfuig
 
     JOINER = "#{$/} #{option(:log, :joiners, :objects) || '⮩ '}".freeze
+    USE_GLOBAL_SELF = option(:log, :global_self) || false
 
     def initialize(log = nil, **params)
       [
@@ -44,7 +45,7 @@ module Logrithm
       define_method(m) do |*args, **extended|
         # rubocop:disable Lint/HandleExceptions
         # rubocop:disable Style/RescueModifier
-        unless $♯
+        if USE_GLOBAL_SELF && $♯.nil?
           caller_line = caller.detect do |line|
             Logrithm.rails? ? line.start_with?(Rails.root.to_s) : !line.start_with?(__dir__)
           end
