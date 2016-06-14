@@ -40,7 +40,8 @@ require 'logrithm/log'
 require 'logrithm/utils/output'
 require 'logrithm/spitters'
 
-require 'logrithm/middleware/rack'
+# This require is to be put into Rails initializer
+# require 'logrithm/middleware/rack'
 
 module Logrithm
   class << self

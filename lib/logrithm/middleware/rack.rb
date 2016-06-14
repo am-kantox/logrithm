@@ -34,13 +34,11 @@ module Logrithm
       end
 
       # rubocop:disable Style/MethodName
-      # rubocop:disable Style/VariableName
       # rubocop:disable Style/OpMethod
       def ✍(what)
-        (@✍ ||= Logrithm::INSTANCE).rack what
+        Logrithm.debug what unless what.blank?
       end
       # rubocop:enable Style/OpMethod
-      # rubocop:enable Style/VariableName
       # rubocop:enable Style/MethodName
     end
   end

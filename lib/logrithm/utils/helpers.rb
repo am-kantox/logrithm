@@ -2,10 +2,9 @@ module Logrithm
   module Utils
     module Helpers
       class << self
-        def constantize(string, namespace = Kernel)
+        def constantize(string, namespace = Kernel, inherit = false)
           namespace = Kernel.const_get(namespace) unless namespace.is_a?(Module)
-          result = namespace.const_get string.to_s.gsub(/(?:\A|_)(\w)/) { |m| m[-1].upcase }
-          result if namespace == Kernel || result.to_s =~ /\A#{namespace}/
+          namespace.const_get string.to_s.gsub(/(?:\A|_)(\w)/) { |m| m[-1].upcase }, inherit
         rescue NameError
           nil
         end

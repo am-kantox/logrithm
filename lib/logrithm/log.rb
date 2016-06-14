@@ -23,7 +23,7 @@ module Logrithm
     def initialize(log = nil, **params)
       [
         File.join(__dir__, '..', '..', 'config', 'logrithm.yml'),
-        (File.join(Rails.root, 'config', 'logrithm.yml') if Logrithm.rails?)
+        (File.join((Rails.root || '.'), 'config', 'logrithm.yml') if Logrithm.rails?)
       ].compact.each do |cfg|
         kungfuig(cfg) if File.exist?(cfg)
       end

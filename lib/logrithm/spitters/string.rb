@@ -6,12 +6,11 @@ module Logrithm
       end
 
       def formatted
-        str = case @obj
-              when String then @obj
-              when Symbol, Regexp then @obj.to_s
-              else @obj.inspect
-              end
-        # Logrithm::Utils::Output.clrz(str, Logrithm.color(:error).last)
+        case @obj
+        when ::String then @obj
+        when ::Symbol, ::Regexp then @obj.to_s
+        else @obj.inspect
+        end
       end
     end
   end
