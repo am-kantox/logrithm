@@ -23,7 +23,7 @@ module Logrithm
             klazz = obj.class.ancestors.inject(nil) do |memo, k|
               memo || Utils::Helpers.constantize(k, Logrithm::Spitters)
             end || Utils::Helpers.constantize(:string, Logrithm::Spitters)
-            yield klazz.new(obj).formatted
+            yield klazz.new(obj).formatted unless empty?(obj)
           end
         end
 

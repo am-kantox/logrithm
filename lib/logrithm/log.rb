@@ -8,18 +8,6 @@ module Logrithm
 
     JOINER = "#{$/} #{option(:log, :joiners, :objects) || '⮩ '}".freeze
 
-    def self.log(message)
-      if $♯
-        puts "Self: [#{$♯}], Message: [#{message}]."
-      else
-        # idx = caller.index { |s| s.include? __FILE__ } to work inside pry
-        Utils::Syringe.inject(*Utils::Helpers.dirty_lookup_class_method(*caller.first[/\A(.+):(\d+)(?=:in)/].split(/:(?=\d+\z)/)))
-        puts "Message: [#{message}]."
-      end
-    rescue
-      puts "Message: [#{message}]."
-    end
-
     def initialize(log = nil, **params)
       [
         File.join(__dir__, '..', '..', 'config', 'logrithm.yml'),
@@ -54,6 +42,21 @@ module Logrithm
 
     %i(debug info warn error fatal).each do |m|
       define_method(m) do |*args, **extended|
+        # rubocop:disable Lint/HandleExceptions
+        # rubocop:disable Style/RescueModifier
+        unless $♯
+          caller_line = caller.detect do |line|
+            Logrithm.rails? ? line.start_with?(Rails.root.to_s) : !line.start_with?(__dir__)
+          end
+          cf = caller_line[/\A(.+):(\d+)(?=:in)/].split(/:(?=\d+\z)/)
+          if cf.is_a?(Array) && cf.first.is_a?(String)
+            Utils::Syringe.inject(*Utils::Helpers.dirty_lookup_class_method(*cf))
+          end
+        end rescue nil # SUPPRESS
+        # rubocop:enable Style/RescueModifier
+        # rubocop:enable Lint/HandleExceptions
+        args << $♯ if $♯ # global constant storing the object
+
         logger.public_send m, (args.length == 1 && extended.empty? ? args.first : [*args, **extended])
       end
     end
