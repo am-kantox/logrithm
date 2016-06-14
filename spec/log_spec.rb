@@ -10,6 +10,11 @@ describe Logrithm::Log do
     TEXT
   end
 
+  it 'logs properly (one argument)' do
+    # expect { Logrithm.fatal(42, "StringInstance", param: :yes) }.to output(/∅/).to_stdout
+    Logrithm.info "Hey, I am a string!"
+  end
+
   it 'logs properly (fatal)' do
     # expect { Logrithm.fatal(42, "StringInstance", param: :yes) }.to output(/∅/).to_stdout
     Logrithm.fatal(42, "StringInstance", param: :yes)

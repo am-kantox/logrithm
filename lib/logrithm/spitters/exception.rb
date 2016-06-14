@@ -18,7 +18,7 @@ module Logrithm
           formatted[:backtrace],
           "[#{formatted[:omitted]} more]".rjust(20, '.')
         ].join(joiner)
-        '' << Logrithm::Log::INSTANCE.send(:lead, :error) << Logrithm::Utils::Output.clrz(msg, Logrithm.color(:error).last)
+        Logrithm::Utils::Output.clrz(msg, Logrithm.color(:error).last)
       end
 
       private

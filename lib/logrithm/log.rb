@@ -6,6 +6,8 @@ module Logrithm
   class Log
     include Kungfuig
 
+    JOINER = "#{$/} #{option(:log, :joiners, :objects) || '⮩ '}".freeze
+
     def self.log(message)
       if $♯
         puts "Self: [#{$♯}], Message: [#{message}]."
@@ -52,7 +54,7 @@ module Logrithm
 
     %i(debug info warn error fatal).each do |m|
       define_method(m) do |*args, **extended|
-        logger.public_send m, [Logrithm.severity(__callee__), *args, **extended]
+        logger.public_send m, (args.length == 1 && extended.empty? ? args.first : [*args, **extended])
       end
     end
 

@@ -4,7 +4,10 @@ module Logrithm
       class << self
         def constantize(string, namespace = Kernel)
           namespace = Kernel.const_get(namespace) unless namespace.is_a?(Module)
-          namespace.const_get string.to_s.gsub(/(?:\A|_)(\w)/) { |m| m[-1].upcase }
+          result = namespace.const_get string.to_s.gsub(/(?:\A|_)(\w)/) { |m| m[-1].upcase }
+          result if namespace == Kernel || result.to_s =~ /\A#{namespace}/
+        rescue NameError
+          nil
         end
 
         def dirty_lookup_class_method(file, lineno)
