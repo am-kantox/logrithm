@@ -101,7 +101,7 @@ module Logrithm
         channel: SLACK_CHANNEL[:channel],
         icon_emoji: ':vertical_traffic_light:',
         username: Airslack.my_first_private_ipv4
-      )
+      ) if SLACK_CHANNEL.is_a?(Hash)
     end
   end
 end
