@@ -38,6 +38,7 @@ end
 
 require 'logrithm/log'
 require 'logrithm/utils/output'
+require 'logrithm/utils/slack'
 require 'logrithm/spitters'
 
 # This require is to be put into Rails initializer
