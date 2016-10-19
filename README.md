@@ -19,6 +19,7 @@ Or install it yourself as:
 
 ## Usage
 
+![Screenshot](https://github.com/am-kantox/logrithm/raw/master/img/Selection_094.png)
 
 ## Development
 
